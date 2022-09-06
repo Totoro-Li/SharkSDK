@@ -9,7 +9,7 @@ namespace SharkConsoleApp
         {
             Console.WriteLine($"GetSDKVersion={API.GetSDKVersion()}");
             BrowserHelper test = new();
-            test.IAAALogin("xxxxxx","xxxxxx");
+            test.IAAALogin("xxxxxxxx","xxxxxxxx");
             Thread.Sleep(500000);
             Console.WriteLine("Time out, disposing");
         }

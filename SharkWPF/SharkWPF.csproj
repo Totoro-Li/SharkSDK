@@ -8,6 +8,37 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SharkSDK\SharkSDK.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\close.png" />
+      <Resource Include="Assets\close.png" />
+      <None Remove="Assets\close_MouseOver.png" />
+      <Resource Include="Assets\close_MouseOver.png" />
+      <Compile Remove="Assets\ConsoleHelper.cs" />
+      <Resource Include="Assets\ConsoleHelper.cs" />
+      <None Remove="Assets\hide.png" />
+      <Resource Include="Assets\hide.png" />
+      <None Remove="Assets\hide_MouseOver.png" />
+      <Resource Include="Assets\hide_MouseOver.png" />
+      <None Remove="Assets\login.png" />
+      <Resource Include="Assets\login.png" />
+      <None Remove="Assets\logo.png" />
+      <Resource Include="Assets\logo.png" />
+      <None Remove="Assets\maximize.png" />
+      <Resource Include="Assets\maximize.png" />
+      <None Remove="Assets\maximize_MouseOver.png" />
+      <Resource Include="Assets\maximize_MouseOver.png" />
+      <None Remove="Assets\logo_halo.png" />
+      <Resource Include="Assets\logo_halo.png" />
+      <None Remove="Assets\select.png" />
+      <Resource Include="Assets\select.png" />
+      <None Remove="Assets\config.png" />
+      <Resource Include="Assets\config.png" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="MaterialDesignThemes" Version="4.6.0-ci277" />
     </ItemGroup>
 

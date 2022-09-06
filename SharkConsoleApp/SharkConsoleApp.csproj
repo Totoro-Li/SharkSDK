@@ -11,4 +11,8 @@
       <ProjectReference Include="..\SharkSDK\SharkSDK.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="105.0.5195.5200" />
+    </ItemGroup>
+
 </Project>
