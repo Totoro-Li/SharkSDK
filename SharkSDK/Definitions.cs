@@ -34,15 +34,6 @@
         public static string SdkVersion = "1.0.0";
     }
 
-    public enum SharkExitCodes
-    {
-        STATUS_OK = 0,
-        GENERAL_ERROR = 1,
-        CONNECTIVITY_ERROR = 2,
-        CREDENTIAL_ERROR = 3,
-        PARSING_ERROR = 4,
-        DRIVER_ERROR=5
-    };
 
     class NotificationText
     {
@@ -68,6 +59,24 @@
         Refresh = 0,
         Add = 1,
         Drop = 2
+    }
+
+    public enum SharkExitCodes
+    {
+        STATUS_OK = 0,
+        GENERAL_ERROR = 1,
+        CONNECTIVITY_ERROR = 2,
+        CREDENTIAL_ERROR = 3,
+        PARSING_ERROR = 4,
+        DRIVER_ERROR = 5
+    };
+
+    public enum BrowserBackend
+    {
+        CHROME = 0,
+        EDGE = 1,
+        FIREFOX = 2,
+        IE = 3
     }
 
     class Timeouts

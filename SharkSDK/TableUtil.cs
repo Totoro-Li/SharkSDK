@@ -10,12 +10,18 @@ namespace SharkSDK
         private static IWebDriver? _driverInternal;
         protected static EventFiringWebDriver? Driver { get; set; }
 
-        protected static  void SetDriver(IWebDriver? driver)
+        protected static void SetDriver(IWebDriver? driver)
         {
-            _driverInternal = driver;
-            Driver = new(_driverInternal);
+            if (driver != null)
+            {
+                _driverInternal = driver;
+                Driver = new(_driverInternal);
+                Driver.ExceptionThrown += new EventHandler<WebDriverExceptionEventArgs>(Listeners.DriverException_Handler);
+                Driver.Navigated += new EventHandler<WebDriverNavigationEventArgs>(Listeners.DriverNavigated_Handler);
+            }
         }
-        
+
+       
     }
 
     public class TablePage : Base
@@ -31,7 +37,7 @@ namespace SharkSDK
 
     public class TableManip
     {
-        public List<StructTypes.Course> CourseDataCollection { get; set; } = new();
+        public List<Course> CourseDataCollection { get; set; } = new();
 
         public void ReadTable(IWebElement table)
         {
@@ -74,11 +80,11 @@ namespace SharkSDK
             }
         }
 
-        static StructTypes.Course GetCourse(IReadOnlyCollection<IWebElement> columns)
+        static Course GetCourse(IReadOnlyCollection<IWebElement> columns)
         {
-            PropertyInfo[] Properties = typeof(StructTypes.Course).GetProperties();
+            PropertyInfo[] Properties = typeof(Course).GetProperties();
             int i = 0;
-            StructTypes.Course res = new();
+            Course res = new();
             object boxedRes = RuntimeHelpers.GetObjectValue(res);
             foreach (var block in columns)
             {
@@ -111,7 +117,7 @@ namespace SharkSDK
                 ++i;
             }
 
-            return (StructTypes.Course)boxedRes;
+            return (Course)boxedRes;
         }
 
         #endregion

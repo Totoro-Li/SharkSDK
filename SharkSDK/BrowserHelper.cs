@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Security;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.Events;
@@ -6,28 +7,40 @@ using OpenQA.Selenium.Support.UI;
 
 namespace SharkSDK;
 
-public class BrowserHelper : Base
+public partial class BrowserHelper : Base
 {
     private ICollection<Cookie>? SessionCookie { get; set; }
 
-    public delegate void OnLoadResp();
+    private void OnLogin()
+    {
+        OnSuccessfulLoginImpl();
+        _listeners.ForEach(x=>x.OnLogin?.Invoke());
+    }
 
-    public OnLoadResp? OnLogin;
+    public void OnCourseListReady()
+    {
+        _listeners.ForEach(x=>x.OnCourseListReady?.Invoke(CourseList));
+    }
 
-    public OnLoadResp? OnTableReady;
+    
 
-    public TableManip tableManip { get; set; }
+    private TableManip tableManip { get; set; }
 
     private WebDriverWait MaxPageTimeoutWait { get; set; }
 
     WebDriverWait MaxPartialPageTimeoutWait { get; set; }
 
-    public delegate void OnCourseAvailableResp();
+    
+    private List<ISharkListener> _listeners = new();
 
     public int TotalPages { get; set; } = 1;
+    public List<Course> CourseList => tableManip.CourseDataCollection;
 
+    public List<Course> DesiredCourseList { get; set; } = new();
 
     private ObservableCollection<Thread> _threadPool = new();
+
+    private (string, SecureString) Credential { get; set; }
 
     public BrowserHelper()
     {
@@ -49,8 +62,6 @@ public class BrowserHelper : Base
         MaxPageTimeoutWait = new(Driver, TimeSpan.FromSeconds(Timeouts.MaxPageTimeout));
         MaxPartialPageTimeoutWait = new(Driver, TimeSpan.FromSeconds(Timeouts.MaxPartialPageTimeout));
         tableManip = new();
-        OnLogin = OnSuccessfulLoginImpl;
-        OnTableReady = OnTableReadyImpl;
     }
 
     public void OnSuccessfulLoginImpl()
@@ -83,17 +94,21 @@ public class BrowserHelper : Base
                 break;
             }
         }
-
         if (status == SharkExitCodes.STATUS_OK)
-            OnTableReady?.Invoke();
+            OnTableReady();
+    }
+
+    public void SetCredential(string username, SecureString password)
+    {
+        Credential = (username, password)!;
     }
 
 
-    public void OnTableReadyImpl()
+    public void OnTableReady()
     {
         if (Driver == null) throw new SharkError((int)SharkExitCodes.DRIVER_ERROR);
         IWebElement operationZone = Driver.FindElement(By.XPath(PageXPath.SchemePageOperationZone));
-        var pageText = operationZone.Text; //e.g. Page 1 of 3
+        var pageText = operationZone.Text;
         TotalPages = int.Parse(pageText.Split(' ')[3]);
         for (int i = 1; i <= TotalPages; ++i)
         {
@@ -108,8 +123,8 @@ public class BrowserHelper : Base
             operationZone.FindElement(By.LinkText("Next")).Click();
             MaxPageTimeoutWait.Until((x) => ((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState").Equals("complete"));
         }
-
-        Console.Write("Finish");
+        OnCourseListReady();
+        Console.Write("Finish Course List Scraping");
     }
 
     public void ParseSchemeTable()
@@ -125,8 +140,18 @@ public class BrowserHelper : Base
         ChromeDriver TableDriver = new();
     }
 
-    public void IAAALogin(string username, string password)
+    public void AddDesiredCourse(Course desired) => DesiredCourseList.Add(desired);
+
+    public void SetListener(ISharkListener listener)
     {
+        if (_listeners.Contains(listener))
+            return;
+        _listeners.Add(listener);
+    }
+
+    public void IAAALogin()
+    {
+        if (Driver == null) throw new SharkError((int)SharkExitCodes.DRIVER_ERROR);
         try
         {
             Driver.Navigate().GoToUrl(ElectiveUrl.Host);
@@ -139,8 +164,8 @@ public class BrowserHelper : Base
 
         MaxPageTimeoutWait.Until((x) => ((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState").Equals("complete"));
         //identify element then obtain text
-        Driver.FindElement(By.Id("user_name")).SendKeys(username);
-        Driver.FindElement(By.Id("password")).SendKeys(password);
+        Driver.FindElement(By.Id("user_name")).SendKeys(Credential.Item1);
+        Driver.FindElement(By.Id("password")).SendKeys(Utilities.SecureStringToString(Credential.Item2));
         Driver.FindElement(By.Id("logon_button")).Click();
         if (Driver.Url.StartsWith(ElectiveUrl.IAAALogin))
         {
@@ -158,7 +183,7 @@ public class BrowserHelper : Base
         try
         {
             MaxPartialPageTimeoutWait.Until(x => Driver.Url.Contains(ElectiveUrl.Host));
-            OnLogin?.Invoke();
+            OnLogin();
         }
         catch (TimeoutException e)
         {

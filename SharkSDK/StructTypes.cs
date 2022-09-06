@@ -2,9 +2,7 @@
 using System.Runtime.InteropServices;
 using OpenQA.Selenium;
 
-namespace SharkSDK;
-
-public class StructTypes
+namespace SharkSDK
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Course
@@ -17,13 +15,13 @@ public class StructTypes
 
         public double WeeklyHours { get; set; }
 
-        public string faculty { get; set; }
+        public string Teacher { get; set; }
 
-        public int classid { get; set; }
+        public int Classid { get; set; }
 
         public string HostDept { get; set; }
 
-        public string? grade { get; set; } //Nullable
+        public string? Grade { get; set; } //Nullable
 
         public string? VenueExamInfo { get; set; } //Nullable
 

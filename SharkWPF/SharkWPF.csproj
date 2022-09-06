@@ -40,6 +40,7 @@
 
     <ItemGroup>
       <PackageReference Include="MaterialDesignThemes" Version="4.6.0-ci277" />
+      <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="105.0.5195.5200" />
     </ItemGroup>
 
 </Project>

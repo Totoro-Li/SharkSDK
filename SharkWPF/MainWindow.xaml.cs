@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using System.Windows.Threading;
+using MaterialDesignThemes.Wpf;
 using SharkSDK;
 using SharkWPF;
 
@@ -14,16 +15,24 @@ namespace SharkWPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public static class ZenNavigationService
+    public static class SharkNavigationService
     {
         public static readonly Dictionary<int, Page> Bindings = new();
         public static Page? Current;
         public static Frame Navframe { get; set; }
 
+        public static Snackbar? NavFrameSnackbar { get; set; }
+
         public static void SetNavFrame(Frame navframe)
         {
             Navframe = navframe;
         }
+
+        public static void SetNavFrameSnackbar(Snackbar snackbar)
+        {
+            NavFrameSnackbar = snackbar;
+        }
+
         public static int AddPageBinding(int index, Page dest)
         {
             try
@@ -57,18 +66,28 @@ namespace SharkWPF
             Navframe.NavigationService.Navigate(dest);
             Current = dest;
         }
+
+        public static void SnackbarMessage(string messsage)
+        {
+            NavFrameSnackbar?.MessageQueue?.Enqueue(messsage, null, null, null, false, true, TimeSpan.FromSeconds(3));
+        }
     }
 
-    
+
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             ConsoleHelper.InitConsoleSession();
             InitializeComponent();
-            ZenNavigationService.SetNavFrame(Navframe);
-
+            Shared.helper = new();
+            SharkNavigationService.SetNavFrame(Navframe);
+            SharkNavigationService.SetNavFrameSnackbar(NavFrameSnackbar);
+            SharkNavigationService.AddPageBinding(0, new Login());
+            SharkNavigationService.AddPageBinding(1, new CourseList());
+            SharkNavigationService.Navigate(0);
         }
+
         private void MousedownDrag(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton != MouseButton.Left) return;
@@ -79,11 +98,11 @@ namespace SharkWPF
         {
             try
             {
-                ZenNavigationService.Navigate(dest);
+                SharkNavigationService.Navigate(dest);
             }
             catch (ArgumentException)
             {
-                NavFrameSnackbar.MessageQueue?.Enqueue("You are not connected to Zenlite device!", null, null, null, false, true, TimeSpan.FromSeconds(3));
+                SharkNavigationService.SnackbarMessage("Page Error!");
             }
         }
 
@@ -125,6 +144,8 @@ namespace SharkWPF
             Navframe.Opacity = 0.6;
         }
 
+        #region WindowControl
+
         private void BG_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Tg_Btn.IsChecked = false;
@@ -134,6 +155,7 @@ namespace SharkWPF
         {
             Application.Current.Shutdown();
         }
+
         private void HideBtn_Click(object sender, RoutedEventArgs e)
         {
             WindowStyle = WindowStyle.SingleBorderWindow; // Switch to single-bordered so Windows can take charge of the minimizing process
@@ -144,22 +166,28 @@ namespace SharkWPF
         {
             base.OnActivated(e);
             Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() => WindowStyle = WindowStyle.None));
-
         }
-        private void NavFrame_OnNavigating(object sender, NavigatingCancelEventArgs e) {
+
+        #endregion
+        
+        private void NavFrame_OnNavigating(object sender, NavigatingCancelEventArgs e)
+        {
             var ta = new ThicknessAnimation();
             ta.Duration = TimeSpan.FromSeconds(0.3);
             ta.DecelerationRatio = 0.7;
-            ta.To = new Thickness(0 , 0 , 0 , 0);
-            if (e.NavigationMode == NavigationMode.New) {         
-                ta.From = new Thickness(500, 0, 0, 0);                                                  
+            ta.To = new Thickness(0, 0, 0, 0);
+            if (e.NavigationMode == NavigationMode.New)
+            {
+                ta.From = new Thickness(500, 0, 0, 0);
             }
-            else if (e.NavigationMode == NavigationMode.Back) {                
-                ta.From = new Thickness(0 , 0 , 500 , 0);                                               
+            else if (e.NavigationMode == NavigationMode.Back)
+            {
+                ta.From = new Thickness(0, 0, 500, 0);
             }
-            (e.Content as Page)?.BeginAnimation(MarginProperty , ta);
+
+            (e.Content as Page)?.BeginAnimation(MarginProperty, ta);
         }
-        
+
         private void Navframe_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             Navframe.Focus();
