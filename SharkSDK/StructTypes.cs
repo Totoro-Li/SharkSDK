@@ -25,6 +25,8 @@ namespace SharkSDK
 
         public string? VenueExamInfo { get; set; } //Nullable
 
-        public (int, int) Quota { get; set; }
+        public int Quota { get; set; }
+        
+        public int Used { get; set; }
     }
 }

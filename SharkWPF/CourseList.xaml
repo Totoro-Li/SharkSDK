@@ -1,0 +1,50 @@
+﻿<Page x:Class="SharkWPF.CourseList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:SharkWPF"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      mc:Ignorable="d"
+      Title="Login" Height="840" Width="1200">
+    <Grid>
+        <DataGrid Name="CourseDataGrid" Style="{StaticResource MaterialDesignDataGrid}"
+                  Background="Transparent" VerticalAlignment="Top"
+                  BorderBrush="Gray" ItemsSource="{Binding CourseList}"
+                  Margin="100,50,50,0"
+                  AutoGenerateColumns="False">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding}"></TextBlock>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Select" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Name" Width="1.5*" Binding="{Binding CourseName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Type" Width="*" Binding="{Binding CourseType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Credits" Width="*" Binding="{Binding Credits, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Hours" Width="*" Binding="{Binding WeeklyHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Teacher" Width="*" Binding="{Binding Teacher, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Classid" Width="*" Binding="{Binding Classid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="HostDept" Width="*" Binding="{Binding HostDept, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Grade" Width="*" Binding="{Binding Grade, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Venue and ExamInfo" Width="4*" Binding="{Binding VenueExamInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Quota" Width="*" Binding="{Binding Quota, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Used" Width="*" Binding="{Binding Used, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

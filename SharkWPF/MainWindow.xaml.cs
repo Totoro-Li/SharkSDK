@@ -153,6 +153,7 @@ namespace SharkWPF
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
+            Base.Driver?.Close();
             Application.Current.Shutdown();
         }
 

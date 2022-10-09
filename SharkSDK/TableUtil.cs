@@ -8,7 +8,14 @@ namespace SharkSDK
     public class Base
     {
         private static IWebDriver? _driverInternal;
-        protected static EventFiringWebDriver? Driver { get; set; }
+        public static EventFiringWebDriver? Driver { get; set; }
+        
+        public event EventHandler? CourseListChanged;
+
+        public void OnCourseChanged()
+        {
+            if(Driver!=null) CourseListChanged?.Invoke(this,EventArgs.Empty);
+        }
 
         protected static void SetDriver(IWebDriver? driver)
         {
@@ -16,12 +23,10 @@ namespace SharkSDK
             {
                 _driverInternal = driver;
                 Driver = new(_driverInternal);
-                Driver.ExceptionThrown += new EventHandler<WebDriverExceptionEventArgs>(Listeners.DriverException_Handler);
-                Driver.Navigated += new EventHandler<WebDriverNavigationEventArgs>(Listeners.DriverNavigated_Handler);
+                Driver.ExceptionThrown += Listeners.DriverException_Handler;
+                Driver.Navigated += Listeners.DriverNavigated_Handler;
             }
         }
-
-       
     }
 
     public class TablePage : Base
@@ -49,7 +54,10 @@ namespace SharkSDK
 
             foreach (var row in rows)
             {
-                var Columns = row.FindElements(By.TagName("td"));
+                var ElementColumns = row.FindElements(By.TagName("td"));
+                List<string> Columns = ElementColumns.Select(x=>x.Text).SelectMany( 
+                    i => i.Split( Separators.QuotaSeparator ).Select( v => v.Trim() ) 
+                ).ToList();
                 if (Columns.Count > 5)
                     CourseDataCollection.Add(GetCourse(Columns));
             }
@@ -80,7 +88,7 @@ namespace SharkSDK
             }
         }
 
-        static Course GetCourse(IReadOnlyCollection<IWebElement> columns)
+        static Course GetCourse(List<string> columns)
         {
             PropertyInfo[] Properties = typeof(Course).GetProperties();
             int i = 0;
@@ -100,20 +108,10 @@ namespace SharkSDK
                 */
                 if (Properties[i].CanWrite)
                 {
-                    if (Properties[i].PropertyType.ToString() == "System.ValueTuple`2[System.Int32,System.Int32]")
-                    {
-                        List<int> conv = block.Text.Split(Separators.QuotaSeparator).Select(x => int.Parse(x)).ToList();
-                        if (conv.Count() != 2)
-                            throw new SharkError((int)SharkExitCodes.PARSING_ERROR);
-                        (int, int) quota = (conv.ElementAt(0), conv.ElementAt(1));
-                        Properties[i].SetValue(boxedRes, Convert.ChangeType(quota, Properties[i].PropertyType), null);
-                    }
-                    else
-                        Properties[i].SetValue(boxedRes, Convert.ChangeType(block.Text, Properties[i].PropertyType), null);
+                    Properties[i].SetValue(boxedRes, Convert.ChangeType(block, Properties[i].PropertyType), null);
                 }
                 else
                     throw new SharkError((int)SharkExitCodes.PARSING_ERROR);
-
                 ++i;
             }
 
